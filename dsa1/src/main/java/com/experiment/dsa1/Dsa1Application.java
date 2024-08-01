@@ -57,7 +57,8 @@ curl \
 	private static String authCode = null;
 	private static String accessToken = null;
 	private static String refreshToken = null;
-	private static Date accessTokenExpiration = new Date();
+	private static Long accessTokenExpiration ;
+	private static Date timeAtWhichAccessTokenGenerated;
 	private static final String CLIENT_ID = "998890755657-o4bsgukkf7u186ronht27hrv1nt5sg7r.apps.googleusercontent.com";
 	private static final String CLIENT_SECRET = "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";
 	private static final String redirectUri = "http://localhost";
@@ -94,7 +95,7 @@ curl \
     }
 
 	public static void processCalendarEvents() throws IOException {
-
+/*
 		String pageToken = null;
 		do {
 			CalendarList calendarList = service.calendarList().list().setPageToken(pageToken).execute();
@@ -105,12 +106,12 @@ curl \
 			}
 			pageToken = calendarList.getNextPageToken();
 		} while (pageToken != null);
-
-		/*Events events = service.events()
+		*/
+		Events events = service.events()
 				.list("primary")
-				.setMaxResults(5)
+				.setMaxResults(100)
 				.setTimeMin(new DateTime(System.currentTimeMillis()))
-				.setOrderBy("startTime")
+//				.setOrderBy("startTime")
 				.execute();
 
 		List<Event> items = events.getItems();
@@ -119,24 +120,30 @@ curl \
 		}else{
 			System.out.println("Upcoming events: ");
 			for(Event event : items){
-				DateTime start = event.getStart().getDateTime();
-				if(start == null){
-					start = event.getStart().getDate();
-				}else{
+//				DateTime start = event.getStart().getDateTime();
+//				if(start == null){
+//					start = event.getStart().getDate();
+//				}else{
+				if(event.size() > 4){
 					System.out.println("Event summary: " + event.getSummary() + " , attendees: "+ event.getAttendees());
-					if(event.getAttendees().size() > 1){
+					if(event.getAttendees().size() > 2){
 						for(EventAttendee att: event.getAttendees()){
 							System.out.println("Id: " + att.getId() + ", email: "+ att.getEmail());
 						}
+
 					}
 				}
+
 			}
-		}*/
+		}
 	}
 
 	public static void GCalendarService() throws IOException, GeneralSecurityException{
 
-		GoogleCredentials credentials = GoogleCredentials.create(new AccessToken(accessToken, accessTokenExpiration));
+		System.out.println("AT Exp: "+ accessTokenExpiration);
+		long initial = timeAtWhichAccessTokenGenerated.getTime();
+		GoogleCredentials credentials = GoogleCredentials.create(new AccessToken(accessToken, new Date((initial + accessTokenExpiration)*1000) ));
+//		GoogleCredentials credentials = GoogleCredentials.create(new AccessToken(accessToken, null ));
 
 		HttpRequestInitializer httpRequestInitializer = new HttpCredentialsAdapter(credentials);
 		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
@@ -176,7 +183,7 @@ curl \
 		String authorizationUrl = String.format(
 				"%s?scope=%s&access_type=%s&include_granted_scopes=%s&response_type=%s&state=%s&redirect_uri=%s&client_id=%s",
 				authorizationEndPoint,
-				"https://mail.google.com/",
+				"https://www.googleapis.com/auth/calendar",
 				"offline",
 				"true",
 				"code",
@@ -267,7 +274,8 @@ curl \
 //				System.out.println(json);
 				accessToken = json.getString("access_token");
 				refreshToken = json.getString("refresh_token");
-				accessTokenExpiration =new Date(json.getInt("expires_in"));
+				accessTokenExpiration = (long)json.getInt("expires_in");
+				timeAtWhichAccessTokenGenerated = new Date();
 
 			}
 		}catch (Exception exception){
