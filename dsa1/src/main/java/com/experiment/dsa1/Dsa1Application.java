@@ -19,6 +19,9 @@ import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.sql.Array;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.awt.Desktop;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -95,21 +98,43 @@ curl \
     }
 
 	public static void processCalendarEvents() throws IOException {
-/*
-		String pageToken = null;
-		do {
-			CalendarList calendarList = service.calendarList().list().setPageToken(pageToken).execute();
-			List<CalendarListEntry> items = calendarList.getItems();
 
-			for (CalendarListEntry calendarListEntry : items) {
-				System.out.println(calendarListEntry.getSummary());
+		CalendarList calendarList = service.calendarList().list().setPageToken(null).execute();
+		List<CalendarListEntry> items = calendarList.getItems();
+		String signedInUserEmail = items.getFirst().getId();
+		System.out.println("Signed In by: "+ signedInUserEmail);
+		long currentTimeValue = 0;
+		long itemTimeValue = 0;
+		String pageToken = null;
+		do{
+			Events events = service.events().list("primary").setPageToken(pageToken).execute();
+			List<Event> eventList = events.getItems();
+			int i =0;
+			for(Event item: eventList){
+				DateTime current = new DateTime(new Date());
+				currentTimeValue = current.getValue();
+				try{
+
+//					itemTimeValue = item.getStart().getDateTime().getValue();
+					itemTimeValue = item.getStart().getDateTime().isDateOnly() ? item.getStart().getDate().getValue() : item.getStart().getDateTime().getValue();
+				}catch (Exception exception){
+					continue;
+//					System.out.println("page token: " + pageToken +"i: "+ i);
+//					System.out.println(exception.getMessage());
+				}
+
+//				System.out.println("current datetime: " + current +", "+ current.getValue());
+//				System.out.println("itemStartDateTime: " + item.getStart().getDateTime() + ", " + item.getStart().getDateTime().getValue());
+				if(currentTimeValue != 0 && itemTimeValue != 0 && itemTimeValue >= currentTimeValue){
+					System.out.println(item.getSummary() + ", " + item.getAttendees());
+				}
+				i++;
 			}
-			pageToken = calendarList.getNextPageToken();
-		} while (pageToken != null);
-		*/
-		Events events = service.events()
+			pageToken = events.getNextPageToken();
+		}while(pageToken != null);
+
+/*		Events events = service.events()
 				.list("primary")
-				.setMaxResults(100)
 				.setTimeMin(new DateTime(System.currentTimeMillis()))
 //				.setOrderBy("startTime")
 				.execute();
@@ -130,25 +155,20 @@ curl \
 						for(EventAttendee att: event.getAttendees()){
 							System.out.println("Id: " + att.getId() + ", email: "+ att.getEmail());
 						}
-
 					}
 				}
-
 			}
-		}
+		}*/
 	}
 
 	public static void GCalendarService() throws IOException, GeneralSecurityException{
 
-		System.out.println("AT Exp: "+ accessTokenExpiration);
-		long initial = timeAtWhichAccessTokenGenerated.getTime();
-		GoogleCredentials credentials = GoogleCredentials.create(new AccessToken(accessToken, new Date((initial + accessTokenExpiration)*1000) ));
-//		GoogleCredentials credentials = GoogleCredentials.create(new AccessToken(accessToken, null ));
+		long initial = (timeAtWhichAccessTokenGenerated.getTime() + accessTokenExpiration)*1000;
+		GoogleCredentials credentials = GoogleCredentials.create(new AccessToken(accessToken, new Date(initial)));
 
 		HttpRequestInitializer httpRequestInitializer = new HttpCredentialsAdapter(credentials);
 		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 
-		//creating gcalendar service
 		service = new Calendar.Builder(HTTP_TRANSPORT,
 				new JacksonFactory(),
 				httpRequestInitializer)
@@ -204,12 +224,11 @@ curl \
 		}
 
 		String capturedUrl = urlQueue.take();
-//		System.out.println("auth redirected url: " + capturedUrl);
 		String[] temp = capturedUrl.split("&");
 
 		authCode = temp[1].split("=")[1];
 	}
-	private static void getAccessAndRefreshTokens() throws IOException {
+	private static void getAccessAndRefreshTokens() {
 
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put("code", authCode);
@@ -276,7 +295,7 @@ curl \
 				refreshToken = json.getString("refresh_token");
 				accessTokenExpiration = (long)json.getInt("expires_in");
 				timeAtWhichAccessTokenGenerated = new Date();
-
+				System.out.println("time at token gen: "+ timeAtWhichAccessTokenGenerated);
 			}
 		}catch (Exception exception){
 			System.out.println(exception.getMessage());
