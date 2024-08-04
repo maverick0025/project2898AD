@@ -102,6 +102,7 @@ curl \
 		CalendarList calendarList = calendarService.calendarList().list().setPageToken(null).execute();
 		List<CalendarListEntry> items = calendarList.getItems();
 		String signedInUserEmail = items.getFirst().getId();
+		//calendarId is same as signedInUserEmail
 		System.out.println("Signed In by: "+ signedInUserEmail);
 		long currentTimeValue;
 		long itemTimeValue;
@@ -112,6 +113,9 @@ curl \
 			if(!eventList.isEmpty()){
 				for(Event event: eventList){
 					if(event.size() > 10){
+						String eventId = event.getId(); //event ID
+						//perform Events: get method using calendarId and EventID to know more about this event (we get actual start time)
+						//only then filter the events
 						DateTime start = event.getStart().getDateTime();
 						if(start == null){
 							start = event.getStart().getDate();
@@ -122,8 +126,11 @@ curl \
 							boolean isRecurrent = event.getRecurrence() != null;
 							if(currentTimeValue != 0 && itemTimeValue != 0 && (itemTimeValue >= currentTimeValue || isRecurrent)){
 								System.out.println("summary: " + event.getSummary() + ", Attendees: "+ event.getAttendees());
-								if(event.getAttendees() != null && event.getSummary() != "Code Green meet"){
-									gmailServiceAndBuild.buildAndSendEmail(event.getSummary(), event.getAttendees(), signedInUserEmail, event.getHtmlLink());
+								if(event.getAttendees() != null && !Objects.equals(event.getSummary(), "Code Green meet")){
+									gmailServiceAndBuild.buildAndSendEmail(event.getSummary(),
+											event.getAttendees(),
+											signedInUserEmail,
+											event.getHtmlLink());
 								}
 							}
 						}
