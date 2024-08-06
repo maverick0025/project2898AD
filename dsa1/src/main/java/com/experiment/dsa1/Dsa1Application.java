@@ -3,6 +3,7 @@ package com.experiment.dsa1;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
@@ -14,6 +15,8 @@ import com.google.auth.oauth2.GoogleCredentials;
 import fi.iki.elonen.NanoHTTPD;
 import jakarta.mail.MessagingException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -27,7 +30,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 @SpringBootApplication
-public class Dsa1Application {
+public class Dsa1Application implements CommandLineRunner {
 
 /*
 Step 1: get Auth code by pasting the following in the browser
@@ -69,17 +72,21 @@ curl \
 	private static final String accessAndRefreshTokensUrl = "https://oauth2.googleapis.com/token";
 	private static final String refreshTokenUrl = "https://accounts.google.com/o/oauth2/token";
 
+	@Autowired
 	private static GmailServiceAndBuild gmailServiceAndBuild;
 
 	public static Calendar calendarService = null;
-//	public static Gmail gmailService = null;
-	public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException, GeneralSecurityException, MessagingException {
-		SpringApplication.run(Dsa1Application.class, args);
-		System.out.println("Hello");
 
+	public static void main(String[] args)  throws  Exception {
+		SpringApplication.run(Dsa1Application.class, args);
+
+    }
+
+	@Override
+	public void run(String... args) throws Exception {
+		System.out.println("Hello");
 		//generate authorization code
 		getAuthCode();
-
 		//generate access token and refresh token
 		getAccessAndRefreshTokens();
 
@@ -94,8 +101,7 @@ curl \
 		//build the request with a valid access token
 		GCalendarService();
 		processCalendarEvents();
-
-    }
+	}
 
 	public static void processCalendarEvents() throws IOException, MessagingException, GeneralSecurityException {
 
@@ -151,10 +157,12 @@ curl \
 		HttpRequestInitializer httpRequestInitializer = new HttpCredentialsAdapter(credentials);
 		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 
-		calendarService = new Calendar.Builder(HTTP_TRANSPORT, new JacksonFactory(), httpRequestInitializer)
+		calendarService = new Calendar.Builder(HTTP_TRANSPORT, GsonFactory.getDefaultInstance(), httpRequestInitializer)
 				.setApplicationName("project2898ad")
 				.build();
 	}
+
+
 
 	public static class OAuth2Server extends NanoHTTPD {
 		private final BlockingQueue<String> urlQueue;
