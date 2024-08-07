@@ -78,12 +78,6 @@
 			<version>1.22.0</version>
 		</dependency>
 
-<!--		<dependency>-->
-<!--			<groupId>com.google.http-client</groupId>-->
-<!--			<artifactId>google-http-client-jackson2</artifactId>-->
-<!--			<version>1.44.2</version>-->
-<!--		</dependency>-->
-
 		<dependency>
 			<groupId>com.google.auth</groupId>
 			<artifactId>google-auth-library-oauth2-http</artifactId>
@@ -108,7 +102,6 @@
 			<version>33.2.1-jre</version>
 		</dependency>
 
-
 	</dependencies>
 
 	<build>
@@ -125,8 +118,6 @@
 					<target>21</target>
 				</configuration>
 			</plugin>
-
 		</plugins>
 	</build>
-
 </project>
