@@ -12,6 +12,7 @@ public class OAuth2Configuration {
     private String clientSecret;
     private String redirectUri;
     private int authRedirectUriPort;
+    private String accessAndRefreshTokenGrantType;
     private String authorizationEndPoint;
     private String accessAndRefreshTokensRequestUrl;
     private String refreshTokenRequestUrl;
@@ -19,14 +20,23 @@ public class OAuth2Configuration {
     public OAuth2Configuration() {
     }
 
-    public OAuth2Configuration(String clientId, String clientSecret, String redirectUri, int authRedirectUriPort, String authorizationEndPoint, String accessAndRefreshTokensRequestUrl, String refreshTokenRequestUrl) {
+    public OAuth2Configuration(String clientId, String clientSecret, String redirectUri, int authRedirectUriPort, String accessAndRefreshTokenGrantType, String authorizationEndPoint, String accessAndRefreshTokensRequestUrl, String refreshTokenRequestUrl) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUri = redirectUri;
         this.authRedirectUriPort = authRedirectUriPort;
+        this.accessAndRefreshTokenGrantType = accessAndRefreshTokenGrantType;
         this.authorizationEndPoint = authorizationEndPoint;
         this.accessAndRefreshTokensRequestUrl = accessAndRefreshTokensRequestUrl;
         this.refreshTokenRequestUrl = refreshTokenRequestUrl;
+    }
+
+    public String getAccessAndRefreshTokenGrantType() {
+        return accessAndRefreshTokenGrantType;
+    }
+
+    public void setAccessAndRefreshTokenGrantType(String accessAndRefreshTokenGrantType) {
+        this.accessAndRefreshTokenGrantType = accessAndRefreshTokenGrantType;
     }
 
     public String getClientId() {

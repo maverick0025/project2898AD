@@ -2,10 +2,11 @@ package com.experiment.dsa1.authenticationandauthorization;
 
 
 import com.experiment.dsa1.Dsa1Application;
+import com.experiment.dsa1.configuration.OAuth2Configuration;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.gmail.GmailScopes;
 import fi.iki.elonen.NanoHTTPD;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.awt.*;
 import java.io.IOException;
@@ -15,51 +16,27 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class AuthorizationCode {
-    @Value("${oauth2.google.client_id}")
-    private final String clientId;
 
-    @Value("${oauth2.google.client_secret}")
-    private final String clientSecret;
-
-    @Value("${oauth2.google.redirect_uri}")
-    private final String redirectUri;
-
-    @Value("${oauth2.google.auth_redirect_uri_port}")
-    private final Integer authRedirectUriPort;
-
-    @Value("${oauth2.google.authorization_end_point}")
-    private final String authorizationEndPoint;
-
+    @Autowired
+    private OAuth2Configuration oAuth2Configuration;
     protected String authCode = null;
-
-    public AuthorizationCode(String clientId,
-                             String clientSecret,
-                             String redirectUri,
-                             Integer authRedirectUriPort,
-                             String authorizationEndPoint) {
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
-        this.redirectUri = redirectUri;
-        this.authRedirectUriPort = authRedirectUriPort;
-        this.authorizationEndPoint = authorizationEndPoint;
-    }
 
     public String getAuthorizationCode() throws IOException, URISyntaxException, InterruptedException {
         BlockingQueue<String> urlQueue = new ArrayBlockingQueue<>(1);
-        OAuth2Server server = new OAuth2Server(authRedirectUriPort, urlQueue);
+        OAuth2Server server = new OAuth2Server(oAuth2Configuration.getAuthRedirectUriPort(), urlQueue);
         server.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
 
         String authorizationUrl = String.format(
                 "%s?scope=%s&access_type=%s&include_granted_scopes=%s&response_type=%s&state=%s&redirect_uri=%s&client_id=%s",
-                authorizationEndPoint,
+                oAuth2Configuration.getAuthorizationEndPoint(),
                 CalendarScopes.CALENDAR + "&" + GmailScopes.GMAIL_COMPOSE,
 //                "https://www.googleapis.com/auth/calendar&https://www.googleapis.com/auth/gmail.compose",
                 "offline",
                 "true",
                 "code",
                 "state_parameter_passthrough_value",
-                redirectUri,
-                clientId
+                oAuth2Configuration.getRedirectUri(),
+                oAuth2Configuration.getClientId()
         );
 
         String os = System.getProperty("os.name").toLowerCase();

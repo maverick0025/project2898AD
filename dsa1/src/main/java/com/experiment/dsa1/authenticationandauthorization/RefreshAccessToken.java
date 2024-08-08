@@ -1,6 +1,8 @@
 package com.experiment.dsa1.authenticationandauthorization;
 
+import com.experiment.dsa1.configuration.OAuth2Configuration;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.BufferedReader;
@@ -14,27 +16,15 @@ import java.util.Map;
 
 public class RefreshAccessToken {
 
-
-    @Value("${oauth2.google.client_id}")
-    private final String clientId;
-    @Value("${oauth2.google.client_secret}")
-    private final String clientSecret;
-
-    @Value("${oauth2.google.refresh_token_request_end_point}")
-    private final String refreshTokenUrl;
-
-    public RefreshAccessToken(String clientId, String clientSecret, String refreshTokenUrl) {
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
-        this.refreshTokenUrl = refreshTokenUrl;
-    }
+    @Autowired
+    private OAuth2Configuration oAuth2Configuration;
 
     public String getRefreshedAccessToken(String refreshToken){
         try {
             Map<String, Object> params = new LinkedHashMap<>();
             params.put("grant_type", "refresh_token");
-            params.put("client_id", clientId);
-            params.put("client_secret", clientSecret);
+            params.put("client_id", oAuth2Configuration.getClientId());
+            params.put("client_secret", oAuth2Configuration.getClientSecret());
             params.put("refresh_token", refreshToken);
 
             StringBuilder postData = new StringBuilder();
@@ -48,7 +38,7 @@ public class RefreshAccessToken {
             }
             byte[] postDataBytes = postData.toString().getBytes(StandardCharsets.UTF_8);
 
-            URL url = new URL(refreshTokenUrl);
+            URL url = new URL(oAuth2Configuration.getRefreshTokenRequestUrl());
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setDoOutput(true);
             con.setUseCaches(false);

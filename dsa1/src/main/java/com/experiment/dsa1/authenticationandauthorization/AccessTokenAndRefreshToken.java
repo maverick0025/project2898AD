@@ -1,6 +1,8 @@
 package com.experiment.dsa1.authenticationandauthorization;
 
+import com.experiment.dsa1.configuration.OAuth2Configuration;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.BufferedReader;
@@ -14,36 +16,21 @@ import java.util.*;
 
 public class AccessTokenAndRefreshToken {
 
-    @Value("${oauth2.google.client_id}")
-    private final String clientId;
-    @Value("${oauth2.google.client_secret}")
-    private final String clientSecret;
-    @Value("${oauth2.google.redirect_uri}")
-    private final String redirectUri;
-    @Value("${oauth2.google.access_and_refresh_tokens_request_end_point}")
-    private final String accessAndRefreshTokensUrl;
+    @Autowired
+    private OAuth2Configuration oAuth2Configuration;
     public static String accessToken = null;
     public static String refreshToken = null;
     public static Long accessTokenExpiration;
     public static Date timeAtWhichAccessTokenGenerated;
 
-    public AccessTokenAndRefreshToken(String clientId,
-                                      String clientSecret,
-                                      String redirectUri,
-                                      String accessAndRefreshTokensUrl) {
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
-        this.redirectUri = redirectUri;
-        this.accessAndRefreshTokensUrl = accessAndRefreshTokensUrl;
-    }
 
     public ARTResponseDTO getAccessAndRefreshTokens(String authCode){
 
         Map<String, Object> params = new LinkedHashMap<>();
         params.put("code", authCode);
-        params.put("client_id", clientId);
-        params.put("client_secret", clientSecret);
-        params.put("redirect_uri", redirectUri);
+        params.put("client_id", oAuth2Configuration.getClientId());
+        params.put("client_secret", oAuth2Configuration.getClientSecret());
+        params.put("redirect_uri", oAuth2Configuration.getRedirectUri());
         params.put("grant_type", "authorization_code");
 
         StringBuilder postData = new StringBuilder();
@@ -65,7 +52,7 @@ public class AccessTokenAndRefreshToken {
         byte[] postDataBytes = postData.toString().getBytes(StandardCharsets.UTF_8);
 
         try {
-            URL url = new URL(accessAndRefreshTokensUrl);
+            URL url = new URL(oAuth2Configuration.getAccessAndRefreshTokensRequestUrl());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
             connection.setDoOutput(true);
