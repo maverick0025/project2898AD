@@ -1,5 +1,7 @@
 package com.experiment.dsa1.gmail;
 
+import com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshToken;
+import com.experiment.dsa1.authenticationandauthorization.AuthorizationCode;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -20,6 +22,7 @@ import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.InternetAddress;
 import org.apache.commons.codec.binary.Base64;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -32,10 +35,14 @@ import java.util.Objects;
 import java.util.Properties;
 
 import static com.experiment.dsa1.Dsa1Application.*;
+import static com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshToken.*;
 
 @Component
 @Service
 public class GmailServiceAndBuild {
+
+    @Autowired
+    private AccessTokenAndRefreshToken accessTokenAndRefreshToken;
 
     private static MimeMessage createEmail(String toEmailAddress,
                                            String fromEmailAddress,
@@ -43,9 +50,7 @@ public class GmailServiceAndBuild {
                                            String bodyText) throws MessagingException {
 
         Properties props = new Properties();
-
         Session session = Session.getDefaultInstance(props, null);
-
         MimeMessage email = new MimeMessage(session);
 
         email.setFrom(new InternetAddress(fromEmailAddress));
@@ -96,11 +101,11 @@ public class GmailServiceAndBuild {
             try{
                 Message msg = new Message();
                  msg = service.users().messages().send("me", messageCreated).execute();
-                System.out.println( "message: " + msg);
-                System.out.println("------------------------------");
-                System.out.println("beautified message: "+ msg.toPrettyString());
-                return msg;
+                 System.out.println("beautified message: "+ msg.toPrettyString());
+
+                 return msg;
             }catch(GoogleJsonResponseException exception){
+
                 GoogleJsonResponseException error = exception;
                 if(error.getDetails().getCode() == 403){
                     System.out.println("Unable to send message: "+ error.getDetails());
@@ -111,9 +116,6 @@ public class GmailServiceAndBuild {
         }
     return null;
     }
-
-
-
 
 }
 

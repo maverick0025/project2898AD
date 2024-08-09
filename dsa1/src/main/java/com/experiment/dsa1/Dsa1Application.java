@@ -1,6 +1,7 @@
 package com.experiment.dsa1;
 
 import com.experiment.dsa1.gmail.GmailServiceAndBuild;
+import com.experiment.dsa1.service.ApplicationService;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -30,7 +31,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 @SpringBootApplication
-public class Dsa1Application implements CommandLineRunner {
+public class Dsa1Application implements CommandLineRunner{
 
 /*
 Step 1: get Auth code by pasting the following in the browser
@@ -59,18 +60,12 @@ curl \
 --data "client_id=998890755657-o4bsgukkf7u186ronht27hrv1nt5sg7r.apps.googleusercontent.com&client_secret=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&refresh_token=1//04uWx4euyIrMTCgYIARAAGAQSNwF-L9Ir-gdmcnVklYjIOLDCOMgre3uu2hLShzNbcj-TpHnY27CSpn2ZSOL7nwxsmMF5vtEARmk&grant_type=refresh_token" \https://accounts.google.com/o/oauth2/token
 */
 
-	private static String authCode = null;
-	public static String accessToken = null;
-	public static String refreshToken = null;
-	public static Long accessTokenExpiration;
-	public static Date timeAtWhichAccessTokenGenerated;
+//	private static String authCode = null;
+//	public static String accessToken = null;
+//	public static String refreshToken = null;
+//	public static Long accessTokenExpiration;
+//	public static Date timeAtWhichAccessTokenGenerated;
 
-
-	@Value("${oauth2.google.access_and_refresh_tokens_request_end_point}")
-	private	String accessAndRefreshTokensUrl;
-
-	@Value("${oauth2.google.refresh_token_request_end_point}")
-	private String refreshTokenUrl;
 
 //	private static final String CLIENT_ID = "998890755657-o4bsgukkf7u186ronht27hrv1nt5sg7r.apps.googleusercontent.com";
 //	private static final String CLIENT_SECRET = "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";
@@ -80,6 +75,8 @@ curl \
 //	private static final String accessAndRefreshTokensUrl = "https://oauth2.googleapis.com/token";
 //	private static final String refreshTokenUrl = "https://accounts.google.com/o/oauth2/token";
 
+	@Autowired
+	private static ApplicationService applicationService;
 
 	public static void main(String[] args)  throws  Exception {
 		SpringApplication.run(Dsa1Application.class, args);
@@ -89,22 +86,17 @@ curl \
 	@Override
 	public void run(String... args) throws Exception {
 		System.out.println("Hello");
+		applicationService.handleServices();
+
 		//generate authorization code
 //		getAuthCode();
 		//generate access token and refresh token
 //		getAccessAndRefreshTokens();
 
-		System.out.println("--------");
-		System.out.println("Authorization: " + authCode);
-		System.out.println("--------");
-		System.out.println("Access Token: " + accessToken);
-		System.out.println("--------");
-		System.out.println("Refresh Token: " + refreshToken);
-		System.out.println("--------");
-
 		//build the request with a valid access token
 //		GCalendarService();
 //		processCalendarEvents();
+
 	}
 
 }

@@ -4,6 +4,7 @@ import com.experiment.dsa1.configuration.OAuth2Configuration;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -14,6 +15,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+@Component
 public class AccessTokenAndRefreshToken {
 
     @Autowired
@@ -22,7 +24,6 @@ public class AccessTokenAndRefreshToken {
     public static String refreshToken = null;
     public static Long accessTokenExpiration;
     public static Date timeAtWhichAccessTokenGenerated;
-
 
     public ARTResponseDTO getAccessAndRefreshTokens(String authCode){
 

@@ -26,13 +26,15 @@ import java.util.Objects;
 import static com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshToken.accessTokenExpiration;
 import static com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshToken.timeAtWhichAccessTokenGenerated;
 
-public class GoogleCalendar {
-
+public class GoogleCalendar implements GoogleCalendarInterface{
     public Calendar calendarService = null;
-
     @Autowired
     private static GmailServiceAndBuild gmailServiceAndBuild;
 
+    public GoogleCalendar() {
+    }
+
+    @Override
     public void processCalendarEvents() throws IOException, MessagingException, GeneralSecurityException {
 
         CalendarList calendarList = calendarService.calendarList().list().setPageToken(null).execute();
@@ -79,6 +81,7 @@ public class GoogleCalendar {
         }while(pageToken != null);
     }
 
+    @Override
     public void GCalendarService(String accessToken) throws IOException, GeneralSecurityException{
 
         long initial = (timeAtWhichAccessTokenGenerated.getTime() + accessTokenExpiration)*1000;

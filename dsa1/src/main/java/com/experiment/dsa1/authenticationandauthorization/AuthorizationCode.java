@@ -7,6 +7,7 @@ import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.gmail.GmailScopes;
 import fi.iki.elonen.NanoHTTPD;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.awt.*;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.net.URISyntaxException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+@Component
 public class AuthorizationCode {
 
     @Autowired
