@@ -44,7 +44,7 @@ public class GmailServiceAndBuild {
     @Autowired
     private AccessTokenAndRefreshToken accessTokenAndRefreshToken;
 
-    private static MimeMessage createEmail(String toEmailAddress,
+    private MimeMessage createEmail(String toEmailAddress,
                                            String fromEmailAddress,
                                            String subject,
                                            String bodyText) throws MessagingException {
@@ -60,7 +60,7 @@ public class GmailServiceAndBuild {
         return email;
     }
 
-    private static Message createMessageWithEmail(MimeMessage emailContent) throws MessagingException, IOException {
+    private Message createMessageWithEmail(MimeMessage emailContent) throws MessagingException, IOException {
 
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         emailContent.writeTo(buffer);
@@ -84,7 +84,7 @@ public class GmailServiceAndBuild {
         return gmailService;
     }
 
-    public static Message buildAndSendEmail(String summary, List<EventAttendee> attendees,
+    public Message buildAndSendEmail(String summary, List<EventAttendee> attendees,
                                   String signedInUser,
                                   String eventUrl) throws MessagingException, IOException, GeneralSecurityException {
         String emailSubject = "Upcoming meeting";

@@ -32,7 +32,6 @@ public class AuthorizationCode {
                 "%s?scope=%s&access_type=%s&include_granted_scopes=%s&response_type=%s&state=%s&redirect_uri=%s&client_id=%s",
                 oAuth2Configuration.getAuthorizationEndPoint(),
                 CalendarScopes.CALENDAR + "&" + GmailScopes.GMAIL_COMPOSE,
-//                "https://www.googleapis.com/auth/calendar&https://www.googleapis.com/auth/gmail.compose",
                 "offline",
                 "true",
                 "code",
@@ -65,4 +64,11 @@ public class AuthorizationCode {
         return authCode;
     }
 
+    public String getAuthCode() {
+        return authCode;
+    }
+
+    public void setAuthCode(String authCode) {
+        this.authCode = authCode;
+    }
 }

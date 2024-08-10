@@ -16,6 +16,7 @@ import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -26,10 +27,11 @@ import java.util.Objects;
 import static com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshToken.accessTokenExpiration;
 import static com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshToken.timeAtWhichAccessTokenGenerated;
 
+@Component
 public class GoogleCalendar implements GoogleCalendarInterface{
     public Calendar calendarService = null;
     @Autowired
-    private static GmailServiceAndBuild gmailServiceAndBuild;
+    private GmailServiceAndBuild gmailServiceAndBuild;
 
     public GoogleCalendar() {
     }
