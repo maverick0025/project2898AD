@@ -16,10 +16,10 @@ public class Controller {
     private ApplicationService applicationService;
 
     @GetMapping("/")
-    public ResponseEntity<String> beginProcess() throws Exception {
+    public String beginProcess() throws Exception {
 
         applicationService.handleServices();
-        return new ResponseEntity(HttpStatusCode.valueOf(200));
+        return "All iz well";
     }
 
 }
