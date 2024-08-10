@@ -8,7 +8,8 @@ Able to send emails to attendees of an event.
 ### Future tasks:
 1. Scheduler to check the expiration of access token and call refresh access token function.
 2. Add custom Exception handler to handle exceptions.
-
+3. Implement Rate limiting
+4. Implement circuit breaker and default method if breaker in action.
 
 ### Inprogress tasks:
 1. Restructuring the code
