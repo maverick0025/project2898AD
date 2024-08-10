@@ -1,22 +1,17 @@
 package com.experiment.dsa1.gmail;
 
 import com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshToken;
-import com.experiment.dsa1.authenticationandauthorization.AuthorizationCode;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventAttendee;
 import com.google.api.services.gmail.Gmail;
-import com.google.api.services.gmail.Gmail.Users.Messages.Send;
 import com.google.api.services.gmail.model.Message;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
-import jakarta.mail.Authenticator;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
@@ -31,10 +26,8 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Properties;
 
-import static com.experiment.dsa1.Dsa1Application.*;
 import static com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshToken.*;
 
 @Component
@@ -84,7 +77,7 @@ public class GmailServiceAndBuild {
         return gmailService;
     }
 
-    public Message buildAndSendEmail(String summary, List<EventAttendee> attendees,
+    public void buildAndSendEmail(String summary, List<EventAttendee> attendees,
                                   String signedInUser,
                                   String eventUrl) throws MessagingException, IOException, GeneralSecurityException {
         String emailSubject = "Upcoming meeting";
@@ -103,7 +96,7 @@ public class GmailServiceAndBuild {
                  msg = service.users().messages().send("me", messageCreated).execute();
                  System.out.println("beautified message: "+ msg.toPrettyString());
 
-                 return msg;
+                 return;
             }catch(GoogleJsonResponseException exception){
 
                 GoogleJsonResponseException error = exception;
@@ -114,7 +107,6 @@ public class GmailServiceAndBuild {
                 }
             }
         }
-    return null;
     }
 
 }

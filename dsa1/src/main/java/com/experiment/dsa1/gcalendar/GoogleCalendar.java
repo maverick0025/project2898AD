@@ -1,5 +1,6 @@
 package com.experiment.dsa1.gcalendar;
 
+import com.experiment.dsa1.configuration.OAuth2Configuration;
 import com.experiment.dsa1.gmail.GmailServiceAndBuild;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -15,10 +16,16 @@ import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import jakarta.mail.MessagingException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.List;
@@ -32,6 +39,9 @@ public class GoogleCalendar implements GoogleCalendarInterface{
     public Calendar calendarService = null;
     @Autowired
     private GmailServiceAndBuild gmailServiceAndBuild;
+
+    @Autowired
+    private OAuth2Configuration oAuth2Configuration;
 
     public GoogleCalendar() {
     }
@@ -56,6 +66,8 @@ public class GoogleCalendar implements GoogleCalendarInterface{
                         String eventId = event.getId(); //event ID
                         //perform Events: get method using calendarId and EventID to know more about this event (we get actual start time)
                         //only then filter the events
+                        getEventInfo( signedInUserEmail, eventId);
+
                         DateTime start = event.getStart().getDateTime();
                         if(start == null){
                             start = event.getStart().getDate();
@@ -66,12 +78,13 @@ public class GoogleCalendar implements GoogleCalendarInterface{
                             boolean isRecurrent = event.getRecurrence() != null;
                             if(currentTimeValue != 0 && itemTimeValue != 0 && (itemTimeValue >= currentTimeValue || isRecurrent)){
                                 System.out.println("summary: " + event.getSummary() + ", Attendees: "+ event.getAttendees());
-                                if(event.getAttendees() != null && !Objects.equals(event.getSummary(), "Code Green meet")){
+
+                                /*if(event.getAttendees() != null && !Objects.equals(event.getSummary(), "Code Green meet")){
                                     gmailServiceAndBuild.buildAndSendEmail(event.getSummary(),
                                             event.getAttendees(),
                                             signedInUserEmail,
                                             event.getHtmlLink());
-                                }
+                                }*/
                             }
                         }
                     }
@@ -96,4 +109,14 @@ public class GoogleCalendar implements GoogleCalendarInterface{
                 .setApplicationName("project2898ad")
                 .build();
     }
+
+    private boolean getEventInfo(String calendarId, String eventId) throws IOException {
+
+        Event event = calendarService.events().get("primary", eventId).execute();
+        System.out.println("---------");
+        System.out.println("Event: "+ event.getSummary() + " : " + event);
+
+        return false;
+    }
+
 }

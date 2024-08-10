@@ -17,10 +17,12 @@ public class OAuth2Configuration {
     private String accessAndRefreshTokensRequestUrl;
     private String refreshTokenRequestUrl;
 
+    private String singleEventRequestEndPoint;
+
     public OAuth2Configuration() {
     }
 
-    public OAuth2Configuration(String clientId, String clientSecret, String redirectUri, int authRedirectUriPort, String accessAndRefreshTokenGrantType, String authorizationEndPoint, String accessAndRefreshTokensRequestUrl, String refreshTokenRequestUrl) {
+    public OAuth2Configuration(String clientId, String clientSecret, String redirectUri, int authRedirectUriPort, String accessAndRefreshTokenGrantType, String authorizationEndPoint, String accessAndRefreshTokensRequestUrl, String refreshTokenRequestUrl, String singleEventRequestEndPoint) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUri = redirectUri;
@@ -29,6 +31,7 @@ public class OAuth2Configuration {
         this.authorizationEndPoint = authorizationEndPoint;
         this.accessAndRefreshTokensRequestUrl = accessAndRefreshTokensRequestUrl;
         this.refreshTokenRequestUrl = refreshTokenRequestUrl;
+        this.singleEventRequestEndPoint = singleEventRequestEndPoint;
     }
 
     public String getAccessAndRefreshTokenGrantType() {
@@ -37,6 +40,14 @@ public class OAuth2Configuration {
 
     public void setAccessAndRefreshTokenGrantType(String accessAndRefreshTokenGrantType) {
         this.accessAndRefreshTokenGrantType = accessAndRefreshTokenGrantType;
+    }
+
+    public String getSingleEventRequestEndPoint() {
+        return singleEventRequestEndPoint;
+    }
+
+    public void setSingleEventRequestEndPoint(String singleEventRequestEndPoint) {
+        this.singleEventRequestEndPoint = singleEventRequestEndPoint;
     }
 
     public String getClientId() {

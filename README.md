@@ -8,11 +8,11 @@ Able to send emails to attendees of an event.
 ### Future tasks:
 1. Scheduler to check the expiration of access token and call refresh access token function.
 2. Add custom Exception handler to handle exceptions.
-3. Add a function to call a specific event api and then cross verify the start time and end time and then send the mail appropriately.
+
 
 ### Inprogress tasks:
 1. Restructuring the code
-
+2. Add a function to check the specific event for it's start time, end time and also end date. Manage well with end date especially.
 
 ### Tasks finished:
 1. Implement get authorization code from google oauth
