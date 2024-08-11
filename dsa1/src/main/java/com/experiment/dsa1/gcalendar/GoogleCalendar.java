@@ -8,10 +8,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.model.CalendarList;
-import com.google.api.services.calendar.model.CalendarListEntry;
-import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.Events;
+import com.google.api.services.calendar.model.*;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -35,7 +32,7 @@ import static com.experiment.dsa1.authenticationandauthorization.AccessTokenAndR
 import static com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshToken.timeAtWhichAccessTokenGenerated;
 
 @Component
-public class GoogleCalendar implements GoogleCalendarInterface{
+public class GoogleCalendar implements GoogleCalendarInterface {
     public Calendar calendarService = null;
     @Autowired
     private GmailServiceAndBuild gmailServiceAndBuild;
@@ -53,53 +50,40 @@ public class GoogleCalendar implements GoogleCalendarInterface{
         List<CalendarListEntry> items = calendarList.getItems();
         String signedInUserEmail = items.getFirst().getId();
         //calendarId is same as signedInUserEmail
-        System.out.println("Signed In by: "+ signedInUserEmail);
+        System.out.println("Signed In by: " + signedInUserEmail);
         long currentTimeValue;
         long itemTimeValue;
         String pageToken = null;
-        do{
+        do {
             Events events = calendarService.events().list("primary").setPageToken(pageToken).setTimeMin(new DateTime(new Date())).execute();
             List<Event> eventList = events.getItems();
-            if(!eventList.isEmpty()){
-                for(Event event: eventList){
-                    if(event.size() > 10){
-                        String eventId = event.getId(); //event ID
-                        //perform Events: get method using calendarId and EventID to know more about this event (we get actual start time)
-                        //only then filter the events
-                        getEventInfo( signedInUserEmail, eventId);
+            if (!eventList.isEmpty()) {
+                for (Event event : eventList) {
+                    if (event.size() > 10) {
+                        if (!getEventInfo(event)) {
+                            continue;
+                        }
+                        System.out.println("summary: " + event.getSummary() + ", Attendees: " + event.getAttendees());
 
-                        DateTime start = event.getStart().getDateTime();
-                        if(start == null){
-                            start = event.getStart().getDate();
-                        }else{
-                            DateTime current = new DateTime(new Date());
-                            currentTimeValue = current.getValue();
-                            itemTimeValue= start.getValue();
-                            boolean isRecurrent = event.getRecurrence() != null;
-                            if(currentTimeValue != 0 && itemTimeValue != 0 && (itemTimeValue >= currentTimeValue || isRecurrent)){
-                                System.out.println("summary: " + event.getSummary() + ", Attendees: "+ event.getAttendees());
-
-                                /*if(event.getAttendees() != null && !Objects.equals(event.getSummary(), "Code Green meet")){
-                                    gmailServiceAndBuild.buildAndSendEmail(event.getSummary(),
-                                            event.getAttendees(),
-                                            signedInUserEmail,
-                                            event.getHtmlLink());
-                                }*/
-                            }
+                        if (event.getAttendees() != null && !Objects.equals(event.getSummary(), "Code Green meet")) {
+                            gmailServiceAndBuild.buildAndSendEmail(event.getSummary(),
+                                    event.getAttendees(),
+                                    signedInUserEmail,
+                                    event.getHtmlLink());
                         }
                     }
                 }
-            }else{
+            } else {
                 System.out.println("No upcoming events");
             }
             pageToken = events.getNextPageToken();
-        }while(pageToken != null);
+        } while (pageToken != null);
     }
 
     @Override
-    public void GCalendarService(String accessToken) throws IOException, GeneralSecurityException{
+    public void GCalendarService(String accessToken) throws IOException, GeneralSecurityException {
 
-        long initial = (timeAtWhichAccessTokenGenerated.getTime() + accessTokenExpiration)*1000;
+        long initial = (timeAtWhichAccessTokenGenerated.getTime() + accessTokenExpiration) * 1000;
         GoogleCredentials credentials = GoogleCredentials.create(new AccessToken(accessToken, new Date(initial)));
 
         HttpRequestInitializer httpRequestInitializer = new HttpCredentialsAdapter(credentials);
@@ -110,13 +94,23 @@ public class GoogleCalendar implements GoogleCalendarInterface{
                 .build();
     }
 
-    private boolean getEventInfo(String calendarId, String eventId) throws IOException {
+    private boolean getEventInfo(Event event) throws IOException {
 
-        Event event = calendarService.events().get("primary", eventId).execute();
-        System.out.println("---------");
-        System.out.println("Event: "+ event.getSummary() + " : " + event);
+//        DateTime created = event.getCreated();
+//        EventDateTime end = event.getEnd();
 
-        return false;
+        DateTime current = new DateTime(new Date());
+        long currentTimeValue = current.getValue();
+
+        /*System.out.println("---------");
+        System.out.println("Event: "+ event.getSummary());
+        System.out.println("created: "+ created +", " + created.getValue());
+        System.out.println("start: "+ (event.getStart().getDateTime() != null ? event.getStart().getDateTime() : event.getStart().getDate()) + ", " + event.getStart().getDateTime().getValue() );
+        System.out.println("end: "+ end + ", "+ (end.getDateTime() != null ? end.getDateTime() : end.getDate()));
+        System.out.println("current time: " + current + ", "+ currentTimeValue);
+        */
+
+        return currentTimeValue < event.getStart().getDateTime().getValue();
     }
 
 }
