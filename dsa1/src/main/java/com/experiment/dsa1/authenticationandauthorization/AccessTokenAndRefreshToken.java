@@ -61,7 +61,7 @@ public class AccessTokenAndRefreshToken {
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             connection.getOutputStream().write(postDataBytes);
-            System.out.println(connection);
+//            System.out.println(connection);
 
             if (connection.getResponseCode() >= 400) {
                 InputStream errorStream = connection.getErrorStream();
@@ -93,7 +93,7 @@ public class AccessTokenAndRefreshToken {
                 accessTokenExpiration = (long)json.getInt("expires_in");
                 timeAtWhichAccessTokenGenerated = new Date();
 
-                System.out.println("time at token gen: "+ timeAtWhichAccessTokenGenerated);
+//                System.out.println("time at token gen: "+ timeAtWhichAccessTokenGenerated);
             }
         }catch (Exception exception){
             System.out.println(exception.getMessage());

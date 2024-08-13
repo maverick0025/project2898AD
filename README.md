@@ -12,13 +12,13 @@ Able to send emails to attendees of an event.
 4. Implement circuit breaker and default method if breaker in action.
 
 ### Inprogress tasks:
-1. Add a function to check the specific event for it's start time, end time and also end date. Manage well with end date especially.
- This function is done. But check and send email only if there are any events in the next 2 hours. I think if I implement a scheduler here it would do the job
+1. Implement a scheduler to process calendar events every 2 hours.
+
 ### Tasks finished:
 1. Implement get authorization code from google oauth
 2. Take the url from the browser session and store it for future
 3. Implement get access token and refresh token using auth code
 4. Implement refresh access token functionality
-
+5. Filter events based on their start time and events that are 1 hr from now.
 
 

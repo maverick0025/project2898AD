@@ -13,16 +13,10 @@ import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import jakarta.mail.MessagingException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.List;
@@ -40,19 +34,16 @@ public class GoogleCalendar implements GoogleCalendarInterface {
     @Autowired
     private OAuth2Configuration oAuth2Configuration;
 
-    public GoogleCalendar() {
-    }
-
     @Override
     public void processCalendarEvents() throws IOException, MessagingException, GeneralSecurityException {
 
         CalendarList calendarList = calendarService.calendarList().list().setPageToken(null).execute();
         List<CalendarListEntry> items = calendarList.getItems();
         String signedInUserEmail = items.getFirst().getId();
+
         //calendarId is same as signedInUserEmail
         System.out.println("Signed In by: " + signedInUserEmail);
-        long currentTimeValue;
-        long itemTimeValue;
+
         String pageToken = null;
         do {
             Events events = calendarService.events().list("primary").setPageToken(pageToken).setTimeMin(new DateTime(new Date())).execute();
@@ -60,11 +51,11 @@ public class GoogleCalendar implements GoogleCalendarInterface {
             if (!eventList.isEmpty()) {
                 for (Event event : eventList) {
                     if (event.size() > 10) {
-                        if (!getEventInfo(event)) {
+                        if (!checkEventValidity(event)) {
                             continue;
                         }
-                        System.out.println("summary: " + event.getSummary() + ", Attendees: " + event.getAttendees());
-
+//                        System.out.println("summary: " + event.getSummary() + ", Attendees: " + event.getAttendees() + ", start time value: " + event.getStart().getDateTime().getValue());
+                        System.out.println("Yeah its a valid event");
                         if (event.getAttendees() != null && !Objects.equals(event.getSummary(), "Code Green meet")) {
                             gmailServiceAndBuild.buildAndSendEmail(event.getSummary(),
                                     event.getAttendees(),
@@ -94,23 +85,24 @@ public class GoogleCalendar implements GoogleCalendarInterface {
                 .build();
     }
 
-    private boolean getEventInfo(Event event) throws IOException {
-
-//        DateTime created = event.getCreated();
-//        EventDateTime end = event.getEnd();
+    private boolean checkEventValidity(Event event) throws IOException {
 
         DateTime current = new DateTime(new Date());
         long currentTimeValue = current.getValue();
 
-        /*System.out.println("---------");
-        System.out.println("Event: "+ event.getSummary());
-        System.out.println("created: "+ created +", " + created.getValue());
-        System.out.println("start: "+ (event.getStart().getDateTime() != null ? event.getStart().getDateTime() : event.getStart().getDate()) + ", " + event.getStart().getDateTime().getValue() );
-        System.out.println("end: "+ end + ", "+ (end.getDateTime() != null ? end.getDateTime() : end.getDate()));
-        System.out.println("current time: " + current + ", "+ currentTimeValue);
-        */
+        int attendeesCount = event.getAttendees() != null ? event.getAttendees().size() : 0;
 
-        return currentTimeValue < event.getStart().getDateTime().getValue();
+        if(currentTimeValue > event.getStart().getDateTime().getValue() || attendeesCount < 2){
+            return false;
+        }
+
+        //check if the event is in the next one hour.
+        long eventStart = event.getStart().getDateTime().getValue();
+        long timeDiffInMinutes = (eventStart - currentTimeValue)/(60 * 1000); //60 for minutes and 1000 for milliseconds
+
+        System.out.println("summary: " + event.getSummary() + " time difference to the current time in minutes: " + timeDiffInMinutes);
+        return timeDiffInMinutes <= 120;
+
     }
 
 }

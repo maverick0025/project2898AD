@@ -16,7 +16,6 @@ public class OAuth2Configuration {
     private String authorizationEndPoint;
     private String accessAndRefreshTokensRequestUrl;
     private String refreshTokenRequestUrl;
-
     private String singleEventRequestEndPoint;
 
     public OAuth2Configuration() {
