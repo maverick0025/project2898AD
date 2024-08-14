@@ -35,6 +35,7 @@ public class ApplicationService {
 
         googleCalendarInterface.processCalendarEvents();
 
+        System.out.println("done with handle services");
     }
 
 

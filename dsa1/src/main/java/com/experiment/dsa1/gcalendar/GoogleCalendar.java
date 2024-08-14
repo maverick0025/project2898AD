@@ -14,6 +14,7 @@ import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -35,7 +36,10 @@ public class GoogleCalendar implements GoogleCalendarInterface {
     private OAuth2Configuration oAuth2Configuration;
 
     @Override
+    @Scheduled(cron = "* 59 * * * *") //run at the start of every hour https://crontab.guru/#0_0/1_*_*_*
     public void processCalendarEvents() throws IOException, MessagingException, GeneralSecurityException {
+
+        System.out.println("Running the cron job right now. current time is: " + new DateTime(new Date()));
 
         CalendarList calendarList = calendarService.calendarList().list().setPageToken(null).execute();
         List<CalendarListEntry> items = calendarList.getItems();
@@ -54,8 +58,6 @@ public class GoogleCalendar implements GoogleCalendarInterface {
                         if (!checkEventValidity(event)) {
                             continue;
                         }
-//                        System.out.println("summary: " + event.getSummary() + ", Attendees: " + event.getAttendees() + ", start time value: " + event.getStart().getDateTime().getValue());
-                        System.out.println("Yeah its a valid event");
                         if (event.getAttendees() != null && !Objects.equals(event.getSummary(), "Code Green meet")) {
                             gmailServiceAndBuild.buildAndSendEmail(event.getSummary(),
                                     event.getAttendees(),
@@ -80,7 +82,7 @@ public class GoogleCalendar implements GoogleCalendarInterface {
         HttpRequestInitializer httpRequestInitializer = new HttpCredentialsAdapter(credentials);
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 
-        calendarService = new Calendar.Builder(HTTP_TRANSPORT, GsonFactory.getDefaultInstance(), httpRequestInitializer)
+        this.calendarService = new Calendar.Builder(HTTP_TRANSPORT, GsonFactory.getDefaultInstance(), httpRequestInitializer)
                 .setApplicationName("project2898ad")
                 .build();
     }
@@ -100,8 +102,12 @@ public class GoogleCalendar implements GoogleCalendarInterface {
         long eventStart = event.getStart().getDateTime().getValue();
         long timeDiffInMinutes = (eventStart - currentTimeValue)/(60 * 1000); //60 for minutes and 1000 for milliseconds
 
-        System.out.println("summary: " + event.getSummary() + " time difference to the current time in minutes: " + timeDiffInMinutes);
-        return timeDiffInMinutes <= 120;
+        if(timeDiffInMinutes > 61){
+            return false;
+        }
+        System.out.println("summary: " + event.getSummary() + ", Attendees: " + event.getAttendees() + " Time to start is: " + timeDiffInMinutes + " min");
+
+        return true;
 
     }
 
