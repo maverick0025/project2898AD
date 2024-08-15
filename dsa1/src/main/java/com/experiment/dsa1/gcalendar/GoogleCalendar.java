@@ -23,8 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import static com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshToken.accessTokenExpiration;
-import static com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshToken.timeAtWhichAccessTokenGenerated;
+import static com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshToken.*;
 
 @Component
 public class GoogleCalendar implements GoogleCalendarInterface {
@@ -36,7 +35,6 @@ public class GoogleCalendar implements GoogleCalendarInterface {
     private OAuth2Configuration oAuth2Configuration;
 
     @Override
-    @Scheduled(cron = "1 1 * * * *") //run at the start of every hour https://crontab.guru/#0_0/1_*_*_*
     public void processCalendarEvents() throws IOException, MessagingException, GeneralSecurityException {
 
         System.out.println("Running the cron job right now. current time is: " + new DateTime(new Date()));
@@ -110,4 +108,9 @@ public class GoogleCalendar implements GoogleCalendarInterface {
 
     }
 
+    @Scheduled(cron = "1 1 * * * *") //run at the 1st minute of every hour https://crontab.guru/#0_0/1_*_*_*
+    private void checkEventsRegularly() throws GeneralSecurityException, IOException, MessagingException {
+        GCalendarService(accessToken);
+        processCalendarEvents();
+    }
 }

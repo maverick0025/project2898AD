@@ -33,8 +33,8 @@ public class ApplicationService {
         String authCode = authorizationCode.getAuthorizationCode();
 
         accessTokenAndRefreshToken.getAccessAndRefreshTokens(authCode);
-        googleCalendarInterface.GCalendarService(accessToken);
 
+        googleCalendarInterface.GCalendarService(accessToken);
         googleCalendarInterface.processCalendarEvents();
 
     }

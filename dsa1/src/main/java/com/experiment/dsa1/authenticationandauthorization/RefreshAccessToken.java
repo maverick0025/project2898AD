@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import static com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshToken.accessToken;
+import static com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshToken.accessTokenExpiration;
 
 @Component
 public class RefreshAccessToken {
@@ -60,6 +61,7 @@ public class RefreshAccessToken {
             System.out.println("------------------------------------------------------------------------------------");
             System.out.println("old access token " + accessToken );
             accessToken = json.getString("access_token");
+            accessTokenExpiration = (long)json.getInt("expires_in");
             System.out.println("refreshed access token " + accessToken);
             System.out.println("------------------------------------------------------------------------------------");
         } catch (Exception ex) {

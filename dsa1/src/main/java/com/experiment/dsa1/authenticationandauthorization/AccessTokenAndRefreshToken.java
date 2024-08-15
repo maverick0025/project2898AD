@@ -98,15 +98,6 @@ public class AccessTokenAndRefreshToken {
 
                 timeAtWhichAccessWillExpire = timeAtWhichAccessTokenGenerated.getTime() + accessTokenExpiration*1000;
 
-//                accessTokenExpiration = (long)6*60; //need to delete after testing
-
-//                System.out.println("accessTokenExpires in : "+ accessTokenExpiration*1000 + " milli seconds");
-
-//                System.out.println("tokengen at: " + timeAtWhichAccessTokenGenerated);
-//                System.out.println("time at token gen: "+ timeAtWhichAccessTokenGenerated.getTime());
-//                System.out.println("time at which access token will expire is: " + timeAtWhichAccessWillExpire );
-//                System.out.println("diff of will expire - gen at : "+ (timeAtWhichAccessWillExpire - timeAtWhichAccessTokenGenerated.getTime()));
-
             }
         }catch (Exception exception){
             System.out.println(exception.getMessage());
