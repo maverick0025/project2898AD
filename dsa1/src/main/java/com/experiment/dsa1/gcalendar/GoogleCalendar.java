@@ -36,7 +36,7 @@ public class GoogleCalendar implements GoogleCalendarInterface {
     private OAuth2Configuration oAuth2Configuration;
 
     @Override
-    @Scheduled(cron = "* 59 * * * *") //run at the start of every hour https://crontab.guru/#0_0/1_*_*_*
+    @Scheduled(cron = "1 1 * * * *") //run at the start of every hour https://crontab.guru/#0_0/1_*_*_*
     public void processCalendarEvents() throws IOException, MessagingException, GeneralSecurityException {
 
         System.out.println("Running the cron job right now. current time is: " + new DateTime(new Date()));
@@ -46,7 +46,6 @@ public class GoogleCalendar implements GoogleCalendarInterface {
         String signedInUserEmail = items.getFirst().getId();
 
         //calendarId is same as signedInUserEmail
-        System.out.println("Signed In by: " + signedInUserEmail);
 
         String pageToken = null;
         do {

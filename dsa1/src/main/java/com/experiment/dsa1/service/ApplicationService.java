@@ -4,9 +4,11 @@ import com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshT
 import com.experiment.dsa1.authenticationandauthorization.AuthorizationCode;
 import com.experiment.dsa1.gcalendar.GoogleCalendarInterface;
 import com.experiment.dsa1.gmail.GmailServiceAndBuild;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+
 
 import static com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshToken.accessToken;
 
@@ -35,7 +37,6 @@ public class ApplicationService {
 
         googleCalendarInterface.processCalendarEvents();
 
-        System.out.println("done with handle services");
     }
 
 

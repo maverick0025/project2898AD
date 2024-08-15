@@ -3,7 +3,7 @@ package com.experiment.dsa1.authenticationandauthorization;
 import com.experiment.dsa1.configuration.OAuth2Configuration;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -20,12 +20,17 @@ public class AccessTokenAndRefreshToken {
 
     @Autowired
     private OAuth2Configuration oAuth2Configuration;
+
+    @Autowired
+    private RefreshAccessToken refreshAccessToken;
+
     public static String accessToken = null;
     public static String refreshToken = null;
     public static Long accessTokenExpiration;
     public static Date timeAtWhichAccessTokenGenerated;
+    public static long timeAtWhichAccessWillExpire;
 
-    public ARTResponseDTO getAccessAndRefreshTokens(String authCode){
+    public void getAccessAndRefreshTokens(String authCode){
 
         Map<String, Object> params = new LinkedHashMap<>();
         params.put("code", authCode);
@@ -61,7 +66,6 @@ public class AccessTokenAndRefreshToken {
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             connection.getOutputStream().write(postDataBytes);
-//            System.out.println(connection);
 
             if (connection.getResponseCode() >= 400) {
                 InputStream errorStream = connection.getErrorStream();
@@ -85,21 +89,41 @@ public class AccessTokenAndRefreshToken {
                 for(String line = reader.readLine(); line!=null; line = reader.readLine()){
                     buffer.append(line);
                 }
-
                 JSONObject json = new JSONObject(buffer.toString());
 
                 accessToken = json.getString("access_token");
                 refreshToken = json.getString("refresh_token");
-                accessTokenExpiration = (long)json.getInt("expires_in");
+                accessTokenExpiration = (long)json.getInt("expires_in"); //in seconds
                 timeAtWhichAccessTokenGenerated = new Date();
 
-//                System.out.println("time at token gen: "+ timeAtWhichAccessTokenGenerated);
+                timeAtWhichAccessWillExpire = timeAtWhichAccessTokenGenerated.getTime() + accessTokenExpiration*1000;
+
+//                accessTokenExpiration = (long)6*60; //need to delete after testing
+
+//                System.out.println("accessTokenExpires in : "+ accessTokenExpiration*1000 + " milli seconds");
+
+//                System.out.println("tokengen at: " + timeAtWhichAccessTokenGenerated);
+//                System.out.println("time at token gen: "+ timeAtWhichAccessTokenGenerated.getTime());
+//                System.out.println("time at which access token will expire is: " + timeAtWhichAccessWillExpire );
+//                System.out.println("diff of will expire - gen at : "+ (timeAtWhichAccessWillExpire - timeAtWhichAccessTokenGenerated.getTime()));
+
             }
         }catch (Exception exception){
             System.out.println(exception.getMessage());
         }
+    }
 
-        return new ARTResponseDTO(accessToken, refreshToken, accessTokenExpiration, timeAtWhichAccessTokenGenerated);
+    @Scheduled(cron = "0 */7 * * * *")
+    public void checkIfAccessTokenExpired(){
+        Date current = new Date();
 
+        System.out.println("Running access token expiration cron and current time is: " + current);
+
+        if(current.getTime() - timeAtWhichAccessTokenGenerated.getTime() >= accessTokenExpiration*1000){
+
+            System.out.println("Access token has expired and current time is "+ (current.getTime() - timeAtWhichAccessTokenGenerated.getTime()));
+
+            refreshAccessToken.getRefreshedAccessToken(refreshToken);
+        }
     }
 }

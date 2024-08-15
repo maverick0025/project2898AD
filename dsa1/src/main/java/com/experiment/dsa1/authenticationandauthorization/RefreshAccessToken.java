@@ -4,6 +4,8 @@ import com.experiment.dsa1.configuration.OAuth2Configuration;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -13,13 +15,15 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import static com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshToken.accessToken;
 
+@Component
 public class RefreshAccessToken {
 
     @Autowired
     private OAuth2Configuration oAuth2Configuration;
 
-    public String getRefreshedAccessToken(String refreshToken){
+    public void getRefreshedAccessToken(String refreshToken){
         try {
             Map<String, Object> params = new LinkedHashMap<>();
             params.put("grant_type", "refresh_token");
@@ -52,15 +56,14 @@ public class RefreshAccessToken {
             }
 
             JSONObject json = new JSONObject(buffer.toString());
-            System.out.println(json);
 
-            String accessToken = json.getString("access_token");
-
-            return accessToken;
-
+            System.out.println("------------------------------------------------------------------------------------");
+            System.out.println("old access token " + accessToken );
+            accessToken = json.getString("access_token");
+            System.out.println("refreshed access token " + accessToken);
+            System.out.println("------------------------------------------------------------------------------------");
         } catch (Exception ex) {
-            ex.printStackTrace();
+            System.out.println(ex.getMessage());
         }
-        return null;
     }
 }
