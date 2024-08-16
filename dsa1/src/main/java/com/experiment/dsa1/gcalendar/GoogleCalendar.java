@@ -1,5 +1,6 @@
 package com.experiment.dsa1.gcalendar;
 
+import com.experiment.dsa1.authenticationandauthorization.SharedVariables;
 import com.experiment.dsa1.configuration.OAuth2Configuration;
 import com.experiment.dsa1.gmail.GmailServiceAndBuild;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -23,8 +24,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import static com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshToken.*;
-
 @Component
 public class GoogleCalendar implements GoogleCalendarInterface {
     public Calendar calendarService = null;
@@ -33,6 +32,8 @@ public class GoogleCalendar implements GoogleCalendarInterface {
 
     @Autowired
     private OAuth2Configuration oAuth2Configuration;
+    @Autowired
+    private SharedVariables sharedVariables;
 
     @Override
     public void processCalendarEvents() throws IOException, MessagingException, GeneralSecurityException {
@@ -73,7 +74,7 @@ public class GoogleCalendar implements GoogleCalendarInterface {
     @Override
     public void GCalendarService(String accessToken) throws IOException, GeneralSecurityException {
 
-        long initial = (timeAtWhichAccessTokenGenerated.getTime() + accessTokenExpiration) * 1000;
+        long initial = (sharedVariables.getTimeAtWhichAccessTokenGeneratedShareable().getTime() + sharedVariables.getAccessTokenExpirationShareable()) * 1000;
         GoogleCredentials credentials = GoogleCredentials.create(new AccessToken(accessToken, new Date(initial)));
 
         HttpRequestInitializer httpRequestInitializer = new HttpCredentialsAdapter(credentials);
@@ -84,7 +85,7 @@ public class GoogleCalendar implements GoogleCalendarInterface {
                 .build();
     }
 
-    private boolean checkEventValidity(Event event) throws IOException {
+    private boolean checkEventValidity(Event event) {
 
         DateTime current = new DateTime(new Date());
         long currentTimeValue = current.getValue();
@@ -105,12 +106,11 @@ public class GoogleCalendar implements GoogleCalendarInterface {
         System.out.println("summary: " + event.getSummary() + ", Attendees: " + event.getAttendees() + " Time to start is: " + timeDiffInMinutes + " min");
 
         return true;
-
     }
 
     @Scheduled(cron = "1 1 * * * *") //run at the 1st minute of every hour https://crontab.guru/#0_0/1_*_*_*
     private void checkEventsRegularly() throws GeneralSecurityException, IOException, MessagingException {
-        GCalendarService(accessToken);
+        GCalendarService(sharedVariables.getAccessTokenShareable());
         processCalendarEvents();
     }
 }

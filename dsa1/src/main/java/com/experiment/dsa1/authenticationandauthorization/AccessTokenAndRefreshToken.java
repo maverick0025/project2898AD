@@ -23,14 +23,16 @@ public class AccessTokenAndRefreshToken {
 
     @Autowired
     private RefreshAccessToken refreshAccessToken;
+    @Autowired
+    private SharedVariables sharedVariables;
 
-    public static String accessToken = null;
+//    public static String accessToken = null;
     public static String refreshToken = null;
-    public static Long accessTokenExpiration;
-    public static Date timeAtWhichAccessTokenGenerated;
+//    public static Long accessTokenExpiration;
+//    public static Date timeAtWhichAccessTokenGenerated;
     public static long timeAtWhichAccessWillExpire;
 
-    public void getAccessAndRefreshTokens(String authCode){
+    public void getAccessAndRefreshTokens(String authCode) {
 
         Map<String, Object> params = new LinkedHashMap<>();
         params.put("code", authCode);
@@ -41,16 +43,16 @@ public class AccessTokenAndRefreshToken {
 
         StringBuilder postData = new StringBuilder();
 
-        for(Map.Entry<String, Object> param : params.entrySet()){
+        for (Map.Entry<String, Object> param : params.entrySet()) {
 
-            if(!postData.isEmpty()){
+            if (!postData.isEmpty()) {
                 postData.append('&');
             }
             postData.append(URLEncoder.encode(param.getKey(), StandardCharsets.UTF_8));
             postData.append('=');
-            if(Objects.equals(param.getKey(), "redirect_uri")){
+            if (Objects.equals(param.getKey(), "redirect_uri")) {
                 postData.append((String) param.getValue());
-            }else{
+            } else {
                 postData.append(URLEncoder.encode((String) param.getValue(), StandardCharsets.UTF_8));
             }
         }
@@ -78,7 +80,6 @@ public class AccessTokenAndRefreshToken {
                     }
                     reader2.close();
 
-                    // Process the error message
                     String errorMessage = buffer.toString();
                     System.out.println("Error message: " + errorMessage);
                 }
@@ -86,33 +87,36 @@ public class AccessTokenAndRefreshToken {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 StringBuilder buffer = new StringBuilder();
 
-                for(String line = reader.readLine(); line!=null; line = reader.readLine()){
+                for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                     buffer.append(line);
                 }
                 JSONObject json = new JSONObject(buffer.toString());
 
-                accessToken = json.getString("access_token");
+                String acToken = json.getString("access_token");
+                sharedVariables.setAccessTokenShareable(acToken);
                 refreshToken = json.getString("refresh_token");
-                accessTokenExpiration = (long)json.getInt("expires_in"); //in seconds
-                timeAtWhichAccessTokenGenerated = new Date();
+                long accessTokenExp = (long) json.getInt("expires_in"); //in seconds
+                sharedVariables.setAccessTokenExpirationShareable(accessTokenExp);
+                Date timeAtWhichAccessTokenGenerated = new Date();
+                sharedVariables.setTimeAtWhichAccessTokenGeneratedShareable(timeAtWhichAccessTokenGenerated);
 
-                timeAtWhichAccessWillExpire = timeAtWhichAccessTokenGenerated.getTime() + accessTokenExpiration*1000;
+                timeAtWhichAccessWillExpire = sharedVariables.getTimeAtWhichAccessTokenGeneratedShareable().getTime() + sharedVariables.getAccessTokenExpirationShareable() * 1000;
 
             }
-        }catch (Exception exception){
+        } catch (Exception exception) {
             System.out.println(exception.getMessage());
         }
     }
 
     @Scheduled(cron = "0 */7 * * * *")
-    public void checkIfAccessTokenExpired(){
+    public void checkIfAccessTokenExpired() {
         Date current = new Date();
 
         System.out.println("Running access token expiration cron and current time is: " + current);
 
-        if(current.getTime() - timeAtWhichAccessTokenGenerated.getTime() >= accessTokenExpiration*1000){
+        if (current.getTime() - sharedVariables.getTimeAtWhichAccessTokenGeneratedShareable().getTime() >= sharedVariables.getAccessTokenExpirationShareable() * 1000) {
 
-            System.out.println("Access token has expired and current time is "+ (current.getTime() - timeAtWhichAccessTokenGenerated.getTime()));
+            System.out.println("Access token has expired and current time is " + (current.getTime() - sharedVariables.getTimeAtWhichAccessTokenGeneratedShareable().getTime()));
 
             refreshAccessToken.getRefreshedAccessToken(refreshToken);
         }

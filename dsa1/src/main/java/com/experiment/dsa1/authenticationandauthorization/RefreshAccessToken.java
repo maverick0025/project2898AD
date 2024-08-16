@@ -10,19 +10,20 @@ import org.springframework.stereotype.Component;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import static com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshToken.accessToken;
-import static com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshToken.accessTokenExpiration;
 
 @Component
 public class RefreshAccessToken {
 
     @Autowired
     private OAuth2Configuration oAuth2Configuration;
+    @Autowired
+    private SharedVariables sharedVariables;
 
     public void getRefreshedAccessToken(String refreshToken){
         try {
@@ -43,7 +44,8 @@ public class RefreshAccessToken {
             }
             byte[] postDataBytes = postData.toString().getBytes(StandardCharsets.UTF_8);
 
-            URL url = new URL(oAuth2Configuration.getRefreshTokenRequestUrl());
+//            URL url = new URL(oAuth2Configuration.getRefreshTokenRequestUrl());
+            URL url = new URI(oAuth2Configuration.getRefreshTokenRequestUrl()).toURL();
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setDoOutput(true);
             con.setUseCaches(false);
@@ -59,10 +61,14 @@ public class RefreshAccessToken {
             JSONObject json = new JSONObject(buffer.toString());
 
             System.out.println("------------------------------------------------------------------------------------");
-            System.out.println("old access token " + accessToken );
-            accessToken = json.getString("access_token");
-            accessTokenExpiration = (long)json.getInt("expires_in");
-            System.out.println("refreshed access token " + accessToken);
+            System.out.println("old access token " + sharedVariables.getAccessTokenShareable() );
+
+            String aToken = json.getString("access_token");
+            sharedVariables.setAccessTokenShareable(aToken);
+            long accessTokenExp = (long)json.getInt("expires_in");
+            sharedVariables.setAccessTokenExpirationShareable(accessTokenExp);
+
+            System.out.println("refreshed access token " + sharedVariables.getAccessTokenShareable());
             System.out.println("------------------------------------------------------------------------------------");
         } catch (Exception ex) {
             System.out.println(ex.getMessage());

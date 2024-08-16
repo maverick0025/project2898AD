@@ -1,6 +1,7 @@
 package com.experiment.dsa1.gmail;
 
 import com.experiment.dsa1.authenticationandauthorization.AccessTokenAndRefreshToken;
+import com.experiment.dsa1.authenticationandauthorization.SharedVariables;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -36,7 +37,8 @@ public class GmailServiceAndBuild {
 
     @Autowired
     private AccessTokenAndRefreshToken accessTokenAndRefreshToken;
-
+    @Autowired
+    private SharedVariables sharedVariables;
     private MimeMessage createEmail(String toEmailAddress,
                                            String fromEmailAddress,
                                            String subject,
@@ -64,10 +66,11 @@ public class GmailServiceAndBuild {
         return message;
     }
 
-    private static Gmail GmailService() throws IOException, GeneralSecurityException {
+    private Gmail GmailService() throws IOException, GeneralSecurityException {
         Gmail gmailService;
-        long initial = (timeAtWhichAccessTokenGenerated.getTime() + accessTokenExpiration)*1000;
-        GoogleCredentials credentials = GoogleCredentials.create(new AccessToken(accessToken, new Date(initial)));
+        long initial = ( sharedVariables.getTimeAtWhichAccessTokenGeneratedShareable().getTime() + sharedVariables.getAccessTokenExpirationShareable())*1000;
+        String at = sharedVariables.getAccessTokenShareable();
+        GoogleCredentials credentials = GoogleCredentials.create(new AccessToken( at, new Date(initial)));
 
         HttpRequestInitializer httpRequestInitializer = new HttpCredentialsAdapter(credentials);
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
