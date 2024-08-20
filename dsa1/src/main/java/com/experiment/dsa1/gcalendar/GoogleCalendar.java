@@ -23,6 +23,7 @@ import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.PriorityQueue;
 
 @Component
 public class GoogleCalendar implements GoogleCalendarInterface {
@@ -112,5 +113,8 @@ public class GoogleCalendar implements GoogleCalendarInterface {
     private void checkEventsRegularly() throws GeneralSecurityException, IOException, MessagingException {
         GCalendarService(sharedVariables.getAccessTokenShareable());
         processCalendarEvents();
+        PriorityQueue<Integer> pq = new PriorityQueue<>();
+
     }
+
 }

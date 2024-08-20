@@ -38,6 +38,15 @@ public class ApplicationService {
         googleCalendarInterface.processCalendarEvents();
 
     }
+    public String checking(){
+        try {
+            System.out.println("Inside try");
+            throw new RuntimeException();
+        } finally {
+            System.out.println("Inside finally");
+            return "from finally";
+        }
+    }
 
 
 }

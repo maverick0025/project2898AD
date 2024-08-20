@@ -17,8 +17,8 @@ public class Controller {
 
     @GetMapping("/")
     public String beginProcess() throws Exception {
-
-        applicationService.handleServices();
+applicationService.checking();
+//        applicationService.handleServices();
         return "All iz well";
     }
 
