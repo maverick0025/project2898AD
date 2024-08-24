@@ -5,7 +5,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import java.util.*;
 
 @EnableScheduling
 @SpringBootApplication
@@ -20,7 +19,6 @@ public class Dsa1Application {
 		AuthorizationCode authco = context.getBean(AuthorizationCode.class);
 		authco.getAuthorizationCode();
 	*/
-
 	}
 
 }
