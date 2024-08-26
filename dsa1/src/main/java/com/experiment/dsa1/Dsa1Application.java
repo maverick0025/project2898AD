@@ -6,6 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import java.util.Iterator;
+import java.util.Stack;
+
 @EnableScheduling
 @SpringBootApplication
 public class Dsa1Application {
@@ -19,6 +22,12 @@ public class Dsa1Application {
 		AuthorizationCode authco = context.getBean(AuthorizationCode.class);
 		authco.getAuthorizationCode();
 	*/
+
+		/*Stack<Integer> st = new Stack<>();
+		Iterator<Integer> iter = st.iterator();
+		while(iter.hasNext()){
+			System.out.println(iter.next());
+		}*/
 	}
 
 }
